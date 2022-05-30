@@ -19,24 +19,26 @@ runs:
 
     - name: create bison dir
       shell: bash
-      run: cd $RUNNER_TEMP && mkdir -p bison
+      run: |
+        sudo mkdir /bison-${{ inputs.version }}
+        sudo chown runner:docker /bison-${{ inputs.version }}
 
     - name: download tar.gz
       shell: bash
       run: |
-        cd "$RUNNER_TEMP/bison"
+        cd /bison-${{ inputs.version }}
         wget -q "https://github.com/bison-packages/packages/releases/download/v${{ inputs.version }}/bison-${{ inputs.version }}.tar.gz"
 
     - name: unarchive tar.gz
       shell: bash
       run: |
-        cd "$RUNNER_TEMP/bison"
-        tar -xf bison-${{ inputs.version }}.tar.gz
+        cd /bison-${{ inputs.version }}
+        sudo tar -xf bison-${{ inputs.version }}.tar.gz
 
     - name: add bin to PATH
       shell: bash
       run: |
-        export BISON_BIN_PATH="$RUNNER_TEMP/bison/bin"
+        export BISON_BIN_PATH="/bison-${{ inputs.version }}/bin"
         echo "Bison is available in $BISON_BIN_PATH, adding it to PATH"
 
         echo "$BISON_BIN_PATH" >> $GITHUB_PATH
