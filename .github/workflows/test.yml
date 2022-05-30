@@ -1,0 +1,37 @@
+name: test-rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: setup bison
+        uses: ./
+        with:
+          version: '3.8.2'
+
+      - name: test installed bison
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          script: |
+            const { execSync } = require('child_process');
+            const assert = require('assert');
+
+            const stdout = execSync("bison --version").toString();
+
+            core.info("bison --version:\n\n");
+            core.info(stdout);
+
+            assert.match(stdout, new RegExp("3.8.2"));
+
+            core.info("\n\nOK.")

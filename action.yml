@@ -1,0 +1,46 @@
+name: "Install Bison"
+description: "Install Bison"
+inputs:
+  version:
+    description: "Version of Bison"
+    required: true
+    default: "latest"
+runs:
+  using: "composite"
+  steps:
+    - name: make sure we are on linux
+      uses: actions/github-script@v6
+      with:
+        result-encoding: string
+        script: |
+          if (process.platform !== 'linux') {
+            core.setFailed("This action can only run on ubuntu-latest");
+          }
+
+    - name: create bison dir
+      shell: bash
+      run: cd $RUNNER_TEMP && mkdir -p bison
+
+    - name: download tar.gz
+      shell: bash
+      run: |
+        cd "$RUNNER_TEMP/bison"
+        wget -q "https://github.com/bison-packages/packages/releases/download/v${{ inputs.version }}/bison-${{ inputs.version }}.tar.gz"
+
+    - name: unarchive tar.gz
+      shell: bash
+      run: |
+        cd "$RUNNER_TEMP/bison"
+        tar -xf bison-${{ inputs.version }}.tar.gz
+
+    - name: add bin to PATH
+      shell: bash
+      run: |
+        export BISON_BIN_PATH="$RUNNER_TEMP/bison/bin"
+        echo "Bison is available in $BISON_BIN_PATH, adding it to PATH"
+
+        echo "$BISON_BIN_PATH" >> $GITHUB_PATH
+
+    - name: print bison version
+      shell: bash
+      run: bison --version
